@@ -1,0 +1,56 @@
+#version 440 core
+
+in vec3 vertexNormal;      // For incoming normals
+in vec3 vertexFragmentPos; // For incoming fragment position
+in vec2 vertexTextureCoordinate;
+
+out vec4 fragmentColor; // For outgoing cube color to the GPU
+
+// Uniform / Global variables for object color, light colors, light positions, and camera/view position
+uniform vec3 objectColor;
+uniform vec3 lightColor1;
+uniform vec3 lightPos1;
+uniform vec3 lightColor2;
+uniform vec3 lightPos2;
+uniform vec3 viewPosition;
+uniform sampler2D uTexture; // Useful when working with multiple textures
+uniform vec2 uvScale;
+
+void main() {
+    // Phong lighting model calculations to generate ambient, diffuse, and specular components
+
+    // Calculate Ambient lighting
+    float ambientStrength = 0.1f;               // Set ambient or global lighting strength
+    vec3 ambient = ambientStrength * (lightColor1 + lightColor2); // Generate ambient light color
+
+    // Calculate Diffuse and Specular lighting for Light 1
+    vec3 norm = normalize(vertexNormal);                             // Normalize vectors to 1 unit
+    vec3 lightDirection1 = normalize(lightPos1 - vertexFragmentPos); // Calculate distance (light direction) between light source 1 and fragments/pixels on cube
+    float impact1 = max(dot(norm, lightDirection1), 0.0);             // Calculate diffuse impact by generating dot product of normal and light
+    vec3 diffuse1 = impact1 * lightColor1;                            // Generate diffuse light color for light 1
+
+    float specularIntensity1 = 0.1f;                                // Set specular light strength for light 1
+    float highlightSize1 = 1.0f;                                   // Set specular highlight size for light 1
+    vec3 reflectDir1 = reflect(-lightDirection1, norm);             // Calculate reflection vector for light 1
+    float specularComponent1 = pow(max(dot(viewPosition - vertexFragmentPos, reflectDir1), 0.0), highlightSize1);
+    vec3 specular1 = specularIntensity1 * specularComponent1 * lightColor1; // Calculate specular component for light 1
+
+    // Calculate Diffuse and Specular lighting for Light 2
+    vec3 lightDirection2 = normalize(lightPos2 - vertexFragmentPos); // Calculate distance (light direction) between light source 2 and fragments/pixels on cube
+    float impact2 = max(dot(norm, lightDirection2), 0.0);             // Calculate diffuse impact by generating dot product of normal and light
+    vec3 diffuse2 = impact2 * lightColor2;                            // Generate diffuse light color for light 2
+
+    float specularIntensity2 = 0.1f;                                // Set specular light strength for light 2
+    float highlightSize2 = 0.1f;                                   // Set specular highlight size for light 2
+    vec3 reflectDir2 = reflect(-lightDirection2, norm);             // Calculate reflection vector for light 2
+    float specularComponent2 = pow(max(dot(viewPosition - vertexFragmentPos, reflectDir2), 0.0), highlightSize2);
+    vec3 specular2 = specularIntensity2 * specularComponent2 * lightColor2; // Calculate specular component for light 2
+
+    // Texture holds the color to be used for all three components
+    vec4 textureColor = texture(uTexture, vertexTextureCoordinate * uvScale);
+
+    // Calculate phong result for both lights and combine them
+    vec3 phong = (ambient + diffuse1 + specular1 + diffuse2 + specular2) * textureColor.xyz;
+
+    fragmentColor = vec4(phong, 1.0); // Send lighting results to GPU
+}

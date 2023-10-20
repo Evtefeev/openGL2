@@ -1,0 +1,7 @@
+#version 440 core
+uniform vec4 objectColor;
+
+out vec4 fragmentColor; // For outgoing lamp color (smaller cube) to the GPU
+	void main() {
+		fragmentColor = vec4(objectColor);
+	}
