@@ -12,10 +12,10 @@
 
 #include <string>
 
-#include "camera.h" // Camera class
-#include "objloader.h"// Loader for .obj files
-#include "shader.h"// Shader functions
-#include "images.h" // Images functions
+#include "camera.h"    // Camera class
+#include "objloader.h" // Loader for .obj files
+#include "shader.h"    // Shader functions
+#include "images.h"    // Images functions
 
 using namespace std; // Standard namespace
 
@@ -441,6 +441,28 @@ void UCreateMesh(GLMesh &mesh, string name)
     std::vector<GLfloat> verts;
 
     loadOBJ("res/objs/" + name, vertices, uvs, normals, verts);
+
+
+    // Save obj data to file
+    // if (name == "Lamp2.obj")
+    // {
+    //     ofstream file("out.txt");
+    //     int n = 0;
+    //     int p = 7;
+    //     for (GLfloat vert : verts)
+    //     {
+    //         file << to_string(vert) << "f, ";
+    //         if (n == p)
+    //         {
+    //             file << "\n";
+    //             n = 0;
+    //         }
+    //         else
+    //         {
+    //             n++;
+    //         }
+    //     }
+    // }
 
     mesh.nVertices = vertices.size();
 
